@@ -29,10 +29,16 @@ module.exports.deleteCard = (req, res) => {
       if (!card) {
         res.status(404).send({ message: `Карточка с id ${req.params.cardId} не найдена.` });
       } else {
-        res.status(200).send(req.params.cardId);
+        res.status(200).send({ message: `Карточка с id ${req.params.cardId} успешно удалена!` });
       }
     })
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка.' }));
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Передан некорректный id карточки.' });
+      } else {
+        res.status(500).send({ message: 'На сервере произошла ошибка.' });
+      }
+    });
 };
 
 module.exports.setCardLike = (req, res) => {

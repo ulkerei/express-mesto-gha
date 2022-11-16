@@ -7,7 +7,7 @@ module.exports.getUserList = (req, res) => {
 };
 
 module.exports.getUser = (req, res) => {
-  Users.findById(req.user._id)
+  Users.findById(req.params.id)
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: `Пользователь с id ${req.params.id} не найден.` });
@@ -15,7 +15,13 @@ module.exports.getUser = (req, res) => {
         res.status(200).send(user);
       }
     })
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка.' }));
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Передан некорректный id пользователя.' });
+      } else {
+        res.status(500).send({ message: 'На сервере произошла ошибка.' });
+      }
+    });
 };
 
 module.exports.createUser = (req, res) => {
