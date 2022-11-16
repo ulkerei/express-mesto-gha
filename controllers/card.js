@@ -1,4 +1,4 @@
-const Cards = require('../models/card.js');
+const Cards = require('../models/card');
 
 module.exports.getCardList = (req, res) => {
   Cards.find({})
@@ -33,7 +33,7 @@ module.exports.deleteCard = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(400).send({ message: 'Передан некорректный id карточки.' });
       } else {
         res.status(500).send({ message: 'На сервере произошла ошибка.' });

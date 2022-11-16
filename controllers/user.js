@@ -1,4 +1,4 @@
-const Users = require('../models/user.js');
+const Users = require('../models/user');
 
 module.exports.getUserList = (req, res) => {
   Users.find({})
@@ -16,7 +16,7 @@ module.exports.getUser = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(400).send({ message: 'Передан некорректный id пользователя.' });
       } else {
         res.status(500).send({ message: 'На сервере произошла ошибка.' });
@@ -33,7 +33,7 @@ module.exports.createUser = (req, res) => {
   Users.create({ name, about, avatar })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
       } else {
         res.status(500).send({ message: 'На сервере произошла ошибка.' });
