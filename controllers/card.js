@@ -18,9 +18,9 @@ module.exports.createCard = (req, res, next) => {
   Cards.create({ name, link, owner })
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+    /*  if (err.name === 'CastError' || err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при создании карточки.'));
-      } else { next(err); }
+      } else */ { next(err); }
     })
     .catch(next);
 };
@@ -38,9 +38,9 @@ module.exports.deleteCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+    /*  if (err.name === 'CastError') {
         next(new BadRequestError('Передан некорректный id карточки.'));
-      } else { next(err); }
+      } else */ { next(err); }
     })
     .catch(next);
 };
@@ -59,9 +59,9 @@ module.exports.setCardLike = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+    /*  if (err.name === 'CastError' || err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при постановке ♥.'));
-      } else { next(err); }
+      } else */ { next(err); }
     })
     .catch(next);
 };
@@ -80,9 +80,9 @@ module.exports.deleteCardLike = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+    /*  if (err.name === 'CastError' || err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при снятии ♥.'));
-      } else { next(err); }
+      } else */ { next(err); }
     })
     .catch(next);
 };
