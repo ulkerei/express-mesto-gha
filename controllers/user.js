@@ -59,12 +59,14 @@ module.exports.createUser = (req, res, next) => {
     .then((hash) => Users.create({
       email, password: hash, name, about, avatar,
     }))
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(200).send({
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+    }))
     .catch((err) => {
-      /*if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя.'));
-      } else */
-
       if (err.code === 11000) {
         next(new DuplicateError('Пользователь с таким email уже существует.'));
       } else { next(err); }
@@ -103,11 +105,6 @@ module.exports.updateProfile = (req, res, next) => {
         res.status(200).send(user);
       }
     })
-    .catch((err) => {
-    /*  if (err.name === 'CastError' || err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении профиля.'));
-      } else */{ next(err); }
-    })
     .catch(next);
 };
 
@@ -122,11 +119,6 @@ module.exports.updateAvatar = (req, res, next) => {
       } else {
         res.status(200).send(user);
       }
-    })
-    .catch((err) => {
-    /*  if (err.name === 'CastError' || err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении аватара.'));
-      } else */ { next(err); }
     })
     .catch(next);
 };
