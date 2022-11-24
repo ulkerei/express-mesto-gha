@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const { errors } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 
 const auth = require('./middlewares/auth');
 const userRouter = require('./routes/user');
@@ -24,8 +24,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(helmet());
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+    password: Joi.string().required(),
+  }),
+}), login);
+
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+    password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().required().pattern(/https?:\/\/(w{3}\.)?[\w./-]+\.[\w./-]*(\/[\w._~:/?#[\]@!$&'()*+,;=-]*)?#?$/),
+  }),
+}), createUser);
+
 app.use(auth);
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
