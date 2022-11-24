@@ -1,7 +1,7 @@
-class NotFoundError extends Error {
+class DuplicateError extends Error {
   constructor(message) {
     super(message);
-    this.statusCode = 404;
+    this.statusCode = 409;
   }
 }
-module.exports = NotFoundError;
+module.exports = DuplicateError;
