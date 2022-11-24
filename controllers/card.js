@@ -1,12 +1,15 @@
 const Cards = require('../models/card');
+const BadRequestError = require('../errors/bad-request-error');
+const ForbiddenError = require('../errors/forbidden-error');
+const NotFoundError = require('../errors/not-found-error');
 
-module.exports.getCardList = (req, res) => {
+module.exports.getCardList = (req, res, next) => {
   Cards.find({})
     .then((users) => res.status(200).send(users))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка.' }));
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const {
     name,
     link,
@@ -16,32 +19,33 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
-      } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка.' });
-      }
-    });
+        next(new BadRequestError('Переданы некорректные данные при создании карточки.'));
+      } else { next(err); }
+    })
+    .catch(next);
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Cards.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: `Карточка с id ${req.params.cardId} не найдена.` });
+        throw new NotFoundError(`Карточка с id ${req.params.cardId} не найдена.`);
       } else {
+        if (card.owner !== req.user._id) {
+          throw new ForbiddenError('Нельзя удалить чужую карточку');
+        }
         res.status(200).send({ message: `Карточка с id ${req.params.cardId} успешно удалена!` });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Передан некорректный id карточки.' });
-      } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка.' });
-      }
-    });
+        next(new BadRequestError('Передан некорректный id карточки.'));
+      } else { next(err); }
+    })
+    .catch(next);
 };
 
-module.exports.setCardLike = (req, res) => {
+module.exports.setCardLike = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -49,21 +53,20 @@ module.exports.setCardLike = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: `Карточка с id ${req.params.cardId} не найдена.` });
+        throw new NotFoundError(`Карточка с id ${req.params.cardId} не найдена.`);
       } else {
         res.status(200).send(card);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при постановке ♥.' });
-      } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка.' });
-      }
-    });
+        next(new BadRequestError('Переданы некорректные данные при постановке ♥.'));
+      } else { next(err); }
+    })
+    .catch(next);
 };
 
-module.exports.deleteCardLike = (req, res) => {
+module.exports.deleteCardLike = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -71,16 +74,15 @@ module.exports.deleteCardLike = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: `Карточка с id ${req.params.cardId} не найдена.` });
+        throw new NotFoundError(`Карточка с id ${req.params.cardId} не найдена.`);
       } else {
         res.status(200).send(card);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при снятии ♥.' });
-      } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка.' });
-      }
-    });
+        next(new BadRequestError('Переданы некорректные данные при снятии ♥.'));
+      } else { next(err); }
+    })
+    .catch(next);
 };
